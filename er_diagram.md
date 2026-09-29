@@ -56,7 +56,7 @@ erDiagram
 *เก็บบันทึกข้อมูลของสมาชิกฟิตเนส*
 - `member_id` : `INT AUTO_INCREMENT PRIMARY KEY` — รหัสสมาชิก
 - `name` : `VARCHAR(100) NOT NULL` — ชื่อ-นามสกุล
-- `gender` : `ENUM('M', 'F') NOT NULL` — เพศ (ชาย / หญิง)
+- `gender` : `ENUM('male', 'female') NOT NULL` — เพศ (ชาย / หญิง)
 - `join_date` : `DATE NOT NULL` — วันที่สมัครสมาชิก
 - `package_type` : `ENUM('basic', 'premium') NOT NULL` — ประเภทแพ็กเกจ
 
