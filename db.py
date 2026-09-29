@@ -38,12 +38,27 @@ def _todo(name):
 
 
 # ---------- สมาชิก (member) ----------
+# def search_members(filters):
+#     """ค้นหา สมาชิก ตามเงื่อนไข (name, gender, package_type)
+#     คำใบ้: เริ่มจาก sql = "SELECT * FROM member WHERE 1=1"
+#     แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
+#     # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
+#     _todo("search_members")
+
 def search_members(filters):
-    """ค้นหา สมาชิก ตามเงื่อนไข (name, gender, package_type)
-    คำใบ้: เริ่มจาก sql = "SELECT * FROM member WHERE 1=1"
-    แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
-    # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
-    _todo("search_members")
+    sql = "SELECT * FROM member WHERE 1=1"
+    params= [] 
+    if filters.get("name"):
+        sql += " AND name LIKE %s"
+        params.append("%" + filters["name"] + "%")
+    if filters.get("gender"):
+        sql += " AND gender = %s"
+        params.append(filters["gender"])
+    if filters.get("package_type"):
+        sql += " AND package_type = %s"
+        params.append(filters["package_type"])
+    sql += " ORDER BY member_id"
+    return run_query(sql, params)
 
 
 def get_member(member_id):

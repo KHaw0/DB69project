@@ -89,7 +89,7 @@ erDiagram
 - `equip_id` : `INT AUTO_INCREMENT PRIMARY KEY` — รหัสอุปกรณ์
 - `name` : `VARCHAR(100) NOT NULL` — ชื่ออุปกรณ์
 - `zone` : `VARCHAR(50)` — โซนหรือห้องที่เก็บอุปกรณ์
-- `status` : `VARCHAR(50) DEFAULT 'available'` — สถานะความพร้อมของอุปกรณ์
+- `status` : `ENUM('available', 'unavailable') NOT NULL DEFAULT 'available'` — สถานะความพร้อมของอุปกรณ์
 
 #### 6. ตาราง `class_equipment` (อุปกรณ์ที่ใช้ประจำแต่ละคลาส)
 *ความสัมพันธ์ M:N ระหว่าง `gym_class` และ `equipment`*

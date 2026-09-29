@@ -22,8 +22,8 @@ const ENTITIES = {
         "type": "select",
         "options": [
           "",
-          "M",
-          "F"
+          "Male",
+          "Female"
         ]
       },
       {
@@ -48,8 +48,8 @@ const ENTITIES = {
         "label": "เพศ",
         "type": "select",
         "options": [
-          "M",
-          "F"
+          "Male",
+          "Female"
         ]
       },
       {
