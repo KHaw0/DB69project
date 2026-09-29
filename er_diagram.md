@@ -74,7 +74,7 @@ erDiagram
 - `name` : `VARCHAR(100) NOT NULL` — ชื่อคลาสเรียน
 - `room` : `VARCHAR(50) NOT NULL` — ห้องที่ใช้จัดคลาส
 - `capacity` : `INT NOT NULL` — จำนวนที่นั่งรับได้สูงสุด
-- `schedule_time` : `VARCHAR(50) NOT NULL` — ช่วงเวลาที่เปิดสอน (เช่น '09:00 - 10:00')
+- `schedule_time` : `DATE NOT NULL` — ช่วงเวลาที่เปิดสอน (เช่น '09:00 - 10:00')
 
 #### 4. ตาราง `booking` (การจองคลาส)
 *ความสัมพันธ์ M:N ระหว่าง `member` และ `gym_class`*
