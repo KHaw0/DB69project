@@ -61,10 +61,14 @@ def search_members(filters):
     return run_query(sql, params)
 
 
+# def get_member(member_id):
+#     """ดึง สมาชิก 1 รายการตาม member_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
+#     # TODO: SELECT * FROM member WHERE member_id = %s แล้วคืนแถวเดียว
+#     _todo("get_member")
+
 def get_member(member_id):
-    """ดึง สมาชิก 1 รายการตาม member_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
-    # TODO: SELECT * FROM member WHERE member_id = %s แล้วคืนแถวเดียว
-    _todo("get_member")
+    rows = run_query("SELECT * FROM member WHERE member_id = %s", (member_id,))
+    return rows[0] if rows else None
 
 
 def create_member(data):
