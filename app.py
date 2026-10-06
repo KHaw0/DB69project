@@ -68,6 +68,28 @@ def member_update(_id):
 def member_delete(_id):
     return safe(db.delete_member, _id)
 
+# ---- เทรนเนอร์ ----
+@app.route("/api/trainers", methods=["GET"])
+def trainers_list():
+    filters = {k: v for k, v in request.args.items() if v}
+    return safe(db.search_trainers, filters)
+
+@app.route("/api/trainers/<int:_id>", methods=["GET"])
+def trainer_get(_id):
+    return safe(db.get_trainer, _id)
+
+@app.route("/api/trainers", methods=["POST"])
+def trainer_create():
+    return safe(db.create_trainer, request.json)
+
+@app.route("/api/trainers/<int:_id>", methods=["PUT"])
+def trainer_update(_id):
+    return safe(db.update_trainer, _id, request.json)
+
+@app.route("/api/trainers/<int:_id>", methods=["DELETE"])
+def trainer_delete(_id):
+    return safe(db.delete_trainer, _id)
+
 # ---- คลาสเรียน ----
 @app.route("/api/classes", methods=["GET"])
 def classes_list():
@@ -111,7 +133,6 @@ def booking_update(_id):
 @app.route("/api/bookings/<int:_id>", methods=["DELETE"])
 def booking_delete(_id):
     return safe(db.delete_booking, _id)
-
 
 # ---- รายงาน ----
 @app.route("/api/reports/summary")

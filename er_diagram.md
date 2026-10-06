@@ -10,6 +10,7 @@ erDiagram
         INT member_id PK
         VARCHAR name
         ENUM gender
+        VARCHAR phone
         DATE join_date
         ENUM package_type
     }
@@ -28,6 +29,8 @@ erDiagram
         VARCHAR room
         INT capacity
         VARCHAR schedule_time
+        ENUM difficulty
+        DECIMAL price
     }
 
     BOOKING {
@@ -57,6 +60,7 @@ erDiagram
 - `member_id` : `INT AUTO_INCREMENT PRIMARY KEY` — รหัสสมาชิก
 - `name` : `VARCHAR(100) NOT NULL` — ชื่อ-นามสกุล
 - `gender` : `ENUM('male', 'female') NOT NULL` — เพศ (ชาย / หญิง)
+- `phone` : `VARCHAR(20) NOT NULL` — หมายเลขโทรศัพท์
 - `join_date` : `DATE NOT NULL` — วันที่สมัครสมาชิก
 - `package_type` : `ENUM('basic', 'premium') NOT NULL` — ประเภทแพ็กเกจ
 
@@ -75,6 +79,8 @@ erDiagram
 - `room` : `VARCHAR(50) NOT NULL` — ห้องที่ใช้จัดคลาส
 - `capacity` : `INT NOT NULL` — จำนวนที่นั่งรับได้สูงสุด
 - `schedule_time` : `DATE NOT NULL` — ช่วงเวลาที่เปิดสอน (เช่น '09:00 - 10:00')
+- `difficulty` : `ENUM('beginner','intermediate','advanced') NOT NULL` — ระดับความยาก
+- `price` : `DECIMAL(8, 2) NOT NULL` — ราคา
 
 #### 4. ตาราง `booking` (การจองคลาส)
 *ความสัมพันธ์ M:N ระหว่าง `member` และ `gym_class`*
