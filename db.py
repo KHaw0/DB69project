@@ -71,74 +71,235 @@ def get_member(member_id):
     return rows[0] if rows else None
 
 
-def create_member(data):
-    """เพิ่ม สมาชิก ใหม่ — data มีคีย์: name, gender, join_date, package_type"""
-    # TODO: INSERT INTO member (...) VALUES (%s, ...)
-    _todo("create_member")
+# def create_member(data):
+#     """เพิ่ม สมาชิก ใหม่ — data มีคีย์: name, gender, join_date, package_type"""
+#     # TODO: INSERT INTO member (...) VALUES (%s, ...)
+#     _todo("create_member")
 
+def create_member(data):
+    sql = """
+        INSERT INTO member (name, gender, phone, join_date, package_type)
+        VALUES (%s, %s, %s, %s, %s)
+    """
+    params = (
+        data["name"],
+        data["gender"],
+        data["phone"],
+        data["join_date"],
+        data["package_type"]
+    )
+    return run_command(sql, params)
+
+# def update_member(member_id, data):
+#     """แก้ไข สมาชิก ตาม member_id"""
+#     # TODO: UPDATE member SET ... WHERE member_id=%s
+#     _todo("update_member")
 
 def update_member(member_id, data):
-    """แก้ไข สมาชิก ตาม member_id"""
-    # TODO: UPDATE member SET ... WHERE member_id=%s
-    _todo("update_member")
+    sql = """
+        UPDATE member 
+        SET name = %s, gender = %s, phone = %s, join_date = %s, package_type = %s 
+        WHERE member_id = %s
+    """
+    params = (
+        data["name"],
+        data["gender"],
+        data["phone"],
+        data["join_date"],
+        data["package_type"],
+        member_id
+    )
+    return run_command(sql, params)
 
-
+# def delete_member(member_id):
+#     """ลบ สมาชิก ตาม member_id"""
+#     # TODO: DELETE FROM member WHERE member_id=%s
+#     _todo("delete_member")
+    
 def delete_member(member_id):
-    """ลบ สมาชิก ตาม member_id"""
-    # TODO: DELETE FROM member WHERE member_id=%s
-    _todo("delete_member")
+    return run_command("DELETE FROM member WHERE member_id = %s", (member_id,))
+
+# ---------- เทรนเนอร์ (trainer) ----------
+def search_trainers(filters):
+    sql = "SELECT * FROM trainer WHERE 1=1"
+    params = []
+    if filters.get("name"):
+        sql += " AND name LIKE %s"
+        params.append("%" + filters["name"] + "%")
+    if filters.get("specialty"):
+        sql += " AND specialty LIKE %s"
+        params.append("%" + filters["specialty"] + "%")
+    sql += " ORDER BY trainer_id"
+    return run_query(sql, params)
+
+def get_trainer(trainer_id):
+    rows = run_query("SELECT * FROM trainer WHERE trainer_id = %s", (trainer_id,))
+    return rows[0] if rows else None
+
+def create_trainer(data):
+    sql = "INSERT INTO trainer (name, specialty, phone) VALUES (%s, %s, %s)"
+    params = (
+        data["name"],
+        blank_to_none(data.get("specialty")),
+        blank_to_none(data.get("phone"))
+    )
+    return run_command(sql, params)
+
+def update_trainer(trainer_id, data):
+    sql = "UPDATE trainer SET name = %s, specialty = %s, phone = %s WHERE trainer_id = %s"
+    params = (data["name"], blank_to_none(data.get("specialty")), blank_to_none(data.get("phone")), trainer_id)
+    return run_command(sql, params)
+
+def delete_trainer(trainer_id):
+    return run_command("DELETE FROM trainer WHERE trainer_id = %s", (trainer_id,))
 
 # ---------- คลาสเรียน (gym_class) ----------
-def search_classes(filters):
-    """ค้นหา คลาสเรียน ตามเงื่อนไข (name, room)
-    ต้องแสดงคอลัมน์: class_id, name, trainer_id, room, capacity, schedule_time, seats_left (ที่นั่งว่าง)
-    คำใบ้ (หลักเดียวกับคอลัมน์ available ของระบบห้องสมุด):
-      - seats_left ไม่ได้เก็บเป็นคอลัมน์ → คำนวณ = capacity − จำนวนการจองที่ status = 'booked'
-        (การจองที่ยกเลิกแล้วไม่นับ)
-      - LEFT JOIN กับ subquery ที่นับการจองของแต่ละ class_id (... WHERE status = 'booked' GROUP BY class_id)
-        แล้วใช้ IFNULL(..., 0) เพราะคลาสที่ยังไม่มีคนจองจะได้ NULL
-      - name/room ใช้ LIKE %s"""
-    # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
-    _todo("search_classes")
+# def search_classes(filters):
+#     """ค้นหา คลาสเรียน ตามเงื่อนไข (name, room)
+#     ต้องแสดงคอลัมน์: class_id, name, trainer_id, room, capacity, schedule_time, seats_left (ที่นั่งว่าง)
+#     คำใบ้ (หลักเดียวกับคอลัมน์ available ของระบบห้องสมุด):
+#       - seats_left ไม่ได้เก็บเป็นคอลัมน์ → คำนวณ = capacity − จำนวนการจองที่ status = 'booked'
+#         (การจองที่ยกเลิกแล้วไม่นับ)
+#       - LEFT JOIN กับ subquery ที่นับการจองของแต่ละ class_id (... WHERE status = 'booked' GROUP BY class_id)
+#         แล้วใช้ IFNULL(..., 0) เพราะคลาสที่ยังไม่มีคนจองจะได้ NULL
+#       - name/room ใช้ LIKE %s"""
+#     # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
+#     _todo("search_classes")
 
+def search_classes(filters):
+    sql = """
+        SELECT 
+            c.class_id,
+            c.name,
+            c.trainer_id,
+            c.room,
+            c.capacity,
+            (c.capacity - IFNULL(b.booked_count, 0)) AS 'seats_left',
+            c.schedule_time,
+            c.difficulty,
+            c.price
+        FROM gym_class c
+        LEFT JOIN (
+            SELECT class_id, COUNT(*) AS booked_count
+            FROM booking
+            WHERE status = 'booked'
+            GROUP BY class_id
+        ) b ON c.class_id = b.class_id
+        WHERE 1=1
+    """
+    params = []
+    
+    if filters.get("name"):
+        sql += " AND c.name LIKE %s"
+        params.append(f"%{filters['name']}%")
+        
+    if filters.get("room"):
+        sql += " AND c.room LIKE %s"
+        params.append(f"%{filters['room']}%")
+         
+    if filters.get("difficulty"):
+        sql += " AND c.difficulty = %s"
+        params.append(filters['difficulty'])
+
+    sql += " ORDER BY c.class_id"
+    return run_query(sql, params)
+
+
+# def get_class(class_id):
+#     """ดึง คลาสเรียน 1 รายการตาม class_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
+#     # TODO: SELECT * FROM gym_class WHERE class_id = %s แล้วคืนแถวเดียว
+#     _todo("get_class")
 
 def get_class(class_id):
-    """ดึง คลาสเรียน 1 รายการตาม class_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
-    # TODO: SELECT * FROM gym_class WHERE class_id = %s แล้วคืนแถวเดียว
-    _todo("get_class")
+    rows = run_query("SELECT * FROM gym_class WHERE class_id = %s", (class_id,))
+    return rows[0] if rows else None
 
+# def create_class(data):
+#     """เพิ่ม คลาสเรียน ใหม่ — data มีคีย์: name, trainer_id, room, capacity, schedule_time"""
+#     # TODO: INSERT INTO gym_class (...) VALUES (%s, ...)
+#     _todo("create_class")
 
 def create_class(data):
-    """เพิ่ม คลาสเรียน ใหม่ — data มีคีย์: name, trainer_id, room, capacity, schedule_time"""
-    # TODO: INSERT INTO gym_class (...) VALUES (%s, ...)
-    _todo("create_class")
+    sql = """
+        INSERT INTO gym_class (
+            trainer_id, name, room, capacity, schedule_time, difficulty, price
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """
+    params = (
+        data["trainer_id"],
+        data["name"],
+        data["room"],
+        data["capacity"],
+        data["schedule_time"],
+        data["difficulty"],
+        data["price"]
+    )
+    return run_command(sql, params)
 
+# def update_class(class_id, data):
+#     """แก้ไข คลาสเรียน ตาม class_id"""
+#     # TODO: UPDATE gym_class SET ... WHERE class_id=%s
+#     _todo("update_class")
 
 def update_class(class_id, data):
-    """แก้ไข คลาสเรียน ตาม class_id"""
-    # TODO: UPDATE gym_class SET ... WHERE class_id=%s
-    _todo("update_class")
+    sql = "UPDATE gym_class SET name = %s, trainer_id = %s, room = %s, capacity = %s, schedule_time = %s, difficulty = %s, price = %s WHERE class_id = %s"
+    params = (
+        data["name"],
+        data["trainer_id"],
+        data["room"],
+        data["capacity"],
+        data["schedule_time"],
+        data["difficulty"],
+        data["price"],
+        class_id
+    )
+    return run_command(sql, params)
 
+# def delete_class(class_id):
+#     """ลบ คลาสเรียน ตาม class_id"""
+#     # TODO: DELETE FROM gym_class WHERE class_id=%s
+#     _todo("delete_class")
 
 def delete_class(class_id):
-    """ลบ คลาสเรียน ตาม class_id"""
-    # TODO: DELETE FROM gym_class WHERE class_id=%s
-    _todo("delete_class")
+    sql = "DELETE FROM gym_class WHERE class_id = %s"
+    params = (class_id,)
+    return run_command(sql, params)
 
 # ---------- การจอง (booking) ----------
-def search_bookings(filters):
-    """ค้นหา การจอง ตามเงื่อนไข (member_id, class_id, status)
-    คำใบ้: เริ่มจาก sql = "SELECT * FROM booking WHERE 1=1"
-    แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
-    # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
-    _todo("search_bookings")
+# def search_bookings(filters):
+#     """ค้นหา การจอง ตามเงื่อนไข (member_id, class_id, status)
+#     คำใบ้: เริ่มจาก sql = "SELECT * FROM booking WHERE 1=1"
+#     แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
+#     # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
+#     _todo("search_bookings")
 
+def search_bookings(filters):
+    sql = "SELECT * FROM booking WHERE 1=1"
+    params = []
+    
+    if filters.get("member_id"):
+        sql += " AND member_id = %s"
+        params.append(filters["member_id"])
+        
+    if filters.get("class_id"):
+        sql += " AND class_id = %s"
+        params.append(filters["class_id"])
+        
+    if filters.get("status"):
+        sql += " AND status = %s"
+        params.append(filters["status"])
+        
+    sql += " ORDER BY booking_id"
+    return run_query(sql, params)
+
+# def get_booking(booking_id):
+#     """ดึง การจอง 1 รายการตาม booking_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
+#     # TODO: SELECT * FROM booking WHERE booking_id = %s แล้วคืนแถวเดียว
+#     _todo("get_booking")
 
 def get_booking(booking_id):
-    """ดึง การจอง 1 รายการตาม booking_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
-    # TODO: SELECT * FROM booking WHERE booking_id = %s แล้วคืนแถวเดียว
-    _todo("get_booking")
-
+    rows = run_query("SELECT * FROM booking WHERE booking_id = %s", (booking_id,))
+    return rows[0] if rows else None
 
 def check_can_book(member_id, class_id, booking_id=None):
     """ตรวจก่อนบันทึกการจอง — ถ้าไม่ผ่านให้ raise ValueError("ข้อความ")

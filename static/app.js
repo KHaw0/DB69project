@@ -53,6 +53,11 @@ const ENTITIES = {
         ]
       },
       {
+        "key": "phone",
+        "label": "หมายเลขโทรศัพท์",
+        "type": "text"
+      },
+      {
         "key": "join_date",
         "label": "วันที่สมัคร",
         "type": "date"
@@ -65,6 +70,45 @@ const ENTITIES = {
           "basic",
           "premium"
         ]
+      }
+    ]
+  },
+  "trainers": {
+    "label": "เทรนเนอร์",
+    "api": "/api/trainers",
+    "idKey": "trainer_id",
+    "search": [
+      {
+        "key": "name",
+        "label": "ชื่อ",
+        "type": "text"
+      },
+      {
+        "key": "specialty",
+        "label": "ความเชี่ยวชาญ",
+        "type": "select",
+        "optionsFrom": {
+          "api": "/api/trainers",
+          "value": "specialty",
+          "label": "specialty"
+        }
+      }
+    ],
+    "form": [
+      {
+        "key": "name",
+        "label": "ชื่อ",
+        "type": "text"
+      },
+      {
+        "key": "specialty",
+        "label": "ความเชี่ยวชาญ",
+        "type": "text"
+      },
+      {
+        "key": "phone",
+        "label": "หมายเลขโทรศัพท์",
+        "type": "text"
       }
     ]
   },
@@ -81,7 +125,23 @@ const ENTITIES = {
       {
         "key": "room",
         "label": "ห้อง",
-        "type": "text"
+        "type": "select",
+        "optionsFrom": {
+          "api": "/api/classes",
+          "value": "room",
+          "label": "room"
+        }
+      },
+      {
+        "key": "difficulty",
+        "label": "ระดับความยาก",
+        "type": "select",
+        "options": [
+          "",
+          "beginner",
+          "intermediate",
+          "advanced"
+        ]
       }
     ],
     "form": [
@@ -109,6 +169,21 @@ const ENTITIES = {
         "key": "schedule_time",
         "label": "เวลา",
         "type": "text"
+      },
+      {
+        "key": "difficulty",
+        "label": "ระดับความยาก",
+        "type": "select",
+        "options": [
+          "beginner",
+          "intermediate",
+          "advanced"
+        ]
+      },
+      {
+        "key": "price",
+        "label": "ราคา",
+        "type": "number"
       }
     ]
   },
@@ -197,7 +272,7 @@ async function loadOptions(fields, forSearch) {
   for (const f of fields.filter(f => f.optionsFrom)) {
     const src = f.optionsFrom, r = await api(src.api);
     f.options = r.ok ? (r.data || []).map(row => ({ value: row[src.value], label: row[src.label] }))
-                     : [{ value: "", label: (r.todo ? "🚧 " : "⚠️ ") + r.error }];
+      : [{ value: "", label: (r.todo ? "🚧 " : "⚠️ ") + r.error }];
     if (forSearch && r.ok) f.options.unshift({ value: "", label: "ทั้งหมด" });
   }
 }
