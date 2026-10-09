@@ -171,7 +171,7 @@ def search_classes(filters):
         SELECT 
             c.class_id,
             c.name,
-            c.trainer_id,
+            t.name AS 'trainer_name',
             c.room,
             c.capacity,
             (c.capacity - IFNULL(b.booked_count, 0)) AS 'seats_left',
@@ -179,6 +179,7 @@ def search_classes(filters):
             c.difficulty,
             c.price
         FROM gym_class c
+        LEFT JOIN trainer t ON c.trainer_id = t.trainer_id
         LEFT JOIN (
             SELECT class_id, COUNT(*) AS booked_count
             FROM booking
