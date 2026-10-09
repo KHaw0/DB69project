@@ -312,43 +312,110 @@ def get_booking(booking_id):
     rows = run_query("SELECT * FROM booking WHERE booking_id = %s", (booking_id,))
     return rows[0] if rows else None
 
+# def check_can_book(member_id, class_id, booking_id=None):
+#     """ตรวจก่อนบันทึกการจอง — ถ้าไม่ผ่านให้ raise ValueError("ข้อความ")
+#     (หน้าเว็บจะแสดงข้อความนั้นเป็น alert ให้ผู้ใช้เห็น และไม่บันทึกข้อมูล)
+#     1) คลาสต้องมีอยู่จริง และยังมีที่นั่งว่าง (seats_left > 0)
+#        seats_left = capacity − (SELECT COUNT(*) FROM booking
+#                                 WHERE class_id = %s AND status = 'booked' AND booking_id <> %s)
+#     2) ห้ามจองซ้ำ: สมาชิกคนนี้มีการจอง 'booked' ในคลาสนี้อยู่แล้ว (ไม่นับแถวตัวเอง)
+#     ★ ตอนเพิ่มใหม่ booking_id เป็น None → ส่ง 0 แทน (booking_id or 0) จะได้ไม่ตรงกับแถวไหนเลย
+#     ตัวอย่าง: raise ValueError("คลาสนี้เต็มแล้ว")"""
+#     # TODO: เขียนการตรวจ 2 ข้อตามคำใบ้
+#     _todo("check_can_book")
+    
 def check_can_book(member_id, class_id, booking_id=None):
-    """ตรวจก่อนบันทึกการจอง — ถ้าไม่ผ่านให้ raise ValueError("ข้อความ")
-    (หน้าเว็บจะแสดงข้อความนั้นเป็น alert ให้ผู้ใช้เห็น และไม่บันทึกข้อมูล)
-    1) คลาสต้องมีอยู่จริง และยังมีที่นั่งว่าง (seats_left > 0)
-       seats_left = capacity − (SELECT COUNT(*) FROM booking
-                                WHERE class_id = %s AND status = 'booked' AND booking_id <> %s)
-    2) ห้ามจองซ้ำ: สมาชิกคนนี้มีการจอง 'booked' ในคลาสนี้อยู่แล้ว (ไม่นับแถวตัวเอง)
-    ★ ตอนเพิ่มใหม่ booking_id เป็น None → ส่ง 0 แทน (booking_id or 0) จะได้ไม่ตรงกับแถวไหนเลย
-    ตัวอย่าง: raise ValueError("คลาสนี้เต็มแล้ว")"""
-    # TODO: เขียนการตรวจ 2 ข้อตามคำใบ้
-    _todo("check_can_book")
+    safe_id = booking_id or 0
+    
+    sql = """SELECT c.name,
+                    c.capacity - (SELECT COUNT(*) FROM booking b
+                                  WHERE b.class_id = c.class_id
+                                    AND b.status = 'booked'
+                                    AND b.booking_id <> %s) AS seats_left
+             FROM gym_class c
+             WHERE c.class_id = %s"""
+    rows = run_query(sql, (safe_id, class_id))
 
+    if not rows:
+        raise ValueError(f"ไม่พบคลาสรหัส {class_id}")
+    if rows[0]["seats_left"] <= 0:
+        raise ValueError(f"คลาส '{rows[0]['name']}' เต็มแล้ว (ว่าง 0 ที่นั่ง)")
+
+    dup = run_query("""SELECT COUNT(*) AS cnt FROM booking
+                       WHERE member_id = %s AND class_id = %s
+                         AND status = 'booked' AND booking_id <> %s""",
+                    (member_id, class_id, safe_id))
+    if dup[0]["cnt"] > 0:
+        raise ValueError("สมาชิกนี้จองคลาสนี้อยู่แล้ว")
+
+# def create_booking(data):
+#     """เพิ่ม การจอง ใหม่ — data มีคีย์: member_id, class_id, book_date, status
+#     คำใบ้:
+#       1) ถ้า status = 'booked' → เรียก check_can_book(data["member_id"], data["class_id"]) ก่อน
+#       2) INSERT INTO booking (...) VALUES (%s, ...)"""
+#     # TODO: เขียนตามคำใบ้
+#     _todo("create_booking")
 
 def create_booking(data):
-    """เพิ่ม การจอง ใหม่ — data มีคีย์: member_id, class_id, book_date, status
-    คำใบ้:
-      1) ถ้า status = 'booked' → เรียก check_can_book(data["member_id"], data["class_id"]) ก่อน
-      2) INSERT INTO booking (...) VALUES (%s, ...)"""
-    # TODO: เขียนตามคำใบ้
-    _todo("create_booking")
+    if data["status"] == "booked":
+        check_can_book(data["member_id"], data["class_id"])
+    
+    sql = """
+        INSERT INTO booking (member_id, class_id, book_date, status)
+        VALUES (%s, %s, %s, %s)
+    """
+    params = (
+        data["member_id"],
+        data["class_id"],
+        data["book_date"],
+        data["status"]
+    )
+    return run_command(sql, params)
 
+
+# def update_booking(booking_id, data):
+#     """แก้ไข การจอง ตาม booking_id
+#     คำใบ้:
+#       1) ถ้า status ใหม่ = 'booked' และ (เดิมเคย cancelled หรือเปลี่ยนคลาส/สมาชิก)
+#          → check_can_book(data["member_id"], data["class_id"], booking_id)
+#          (ดูค่าเดิมด้วย get_booking — การยกเลิกจองไม่ต้องตรวจ)
+#       2) UPDATE booking SET ... WHERE booking_id=%s"""
+#     # TODO: เขียนตามคำใบ้
+#     _todo("update_booking")
 
 def update_booking(booking_id, data):
-    """แก้ไข การจอง ตาม booking_id
-    คำใบ้:
-      1) ถ้า status ใหม่ = 'booked' และ (เดิมเคย cancelled หรือเปลี่ยนคลาส/สมาชิก)
-         → check_can_book(data["member_id"], data["class_id"], booking_id)
-         (ดูค่าเดิมด้วย get_booking — การยกเลิกจองไม่ต้องตรวจ)
-      2) UPDATE booking SET ... WHERE booking_id=%s"""
-    # TODO: เขียนตามคำใบ้
-    _todo("update_booking")
+    existing_booking = get_booking(booking_id)
+    
+    if data["status"] == "booked" and (
+        existing_booking["status"] != "booked" or
+        existing_booking["member_id"] != data["member_id"] or
+        existing_booking["class_id"] != data["class_id"]
+    ):
+        check_can_book(data["member_id"], data["class_id"], booking_id)
+    
+    sql = """
+        UPDATE booking 
+        SET member_id = %s, class_id = %s, book_date = %s, status = %s 
+        WHERE booking_id = %s
+    """
+    params = (
+        data["member_id"],
+        data["class_id"],
+        data["book_date"],
+        data["status"],
+        booking_id
+    )
+    return run_command(sql, params)
 
+
+# def delete_booking(booking_id):
+#     """ลบ การจอง ตาม booking_id"""
+#     # TODO: DELETE FROM booking WHERE booking_id=%s
+#     _todo("delete_booking")
 
 def delete_booking(booking_id):
-    """ลบ การจอง ตาม booking_id"""
-    # TODO: DELETE FROM booking WHERE booking_id=%s
-    _todo("delete_booking")
+    params = (booking_id,)
+    return run_command("DELETE FROM booking WHERE booking_id = %s", params)
 
 
 # ============================================================
