@@ -274,7 +274,17 @@ def delete_class(class_id):
 #     _todo("search_bookings")
 
 def search_bookings(filters):
-    sql = "SELECT * FROM booking WHERE 1=1"
+    sql = """
+            SELECT  b.booking_id,
+                    m.name AS 'mem_name',
+                    c.name AS 'class_name',
+                    b.book_date,
+                    b.status
+            FROM    booking b 
+            JOIN    member m ON m.member_id = b.member_id
+            JOIN    gym_class c ON c.class_id = b.class_id
+            WHERE 1=1
+    """
     params = []
     
     if filters.get("member_id"):
