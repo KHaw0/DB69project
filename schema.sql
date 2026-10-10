@@ -18,14 +18,16 @@ CREATE TABLE member (
     gender ENUM('Male', 'Female') NOT NULL,
     phone VARCHAR(20) NOT NULL,
     join_date DATE NOT NULL,
-    package_type ENUM('basic', 'premium') NOT NULL
+    package_type ENUM('basic', 'premium') NOT NULL,
+    born_date DATE
     -- TODO: name, gender, join_date, package_type
 );
 CREATE TABLE trainer (
     trainer_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     specialty VARCHAR(100),
-    phone VARCHAR(20)
+    phone VARCHAR(20),
+    born_date DATE
     -- TODO: name, specialty, phone
 );
 CREATE TABLE gym_class (          -- 1:M จาก trainer
